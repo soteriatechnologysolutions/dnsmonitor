@@ -17,6 +17,8 @@
         rustc
         cargo
         rust-analyzer
+        openssl
+        pkg-config
       ];
       shellHook = ''
         cargo --version
