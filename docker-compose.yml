@@ -1,0 +1,5 @@
+services:
+  dnsmonitor: 
+    container-name: dnsmonitor
+    working_dir: /opt/dnsmonitor
+    pull-policy: build
