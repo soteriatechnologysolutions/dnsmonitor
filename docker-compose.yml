@@ -1,9 +1,0 @@
-services:
-  dnsmonitor: 
-    restart: unless-stopped
-    networks:
-      - cloudflared
-networks:
-  cloudflared:
-    name: cloudflared
-    external: true
