@@ -4,4 +4,8 @@ services:
     pull-policy: build
   restart: unless-stopped
   networks:
-   - cloudflared
+    cloudflared
+networks:
+  cloudflared:
+    name: cloudflared
+    external: true
