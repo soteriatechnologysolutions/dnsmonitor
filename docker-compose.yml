@@ -1,10 +1,8 @@
 services:
   dnsmonitor: 
-    container-name: dnsmonitor
-    pull-policy: build
-  restart: unless-stopped
-  networks:
-    cloudflared
+    restart: unless-stopped
+    networks:
+      - cloudflared
 networks:
   cloudflared:
     name: cloudflared
