@@ -49,7 +49,7 @@ async fn nc_create(
     //TODO: This is not correct, need to use the format specified at
     //https://www.namecheap.com/support/api/methods/domains/create/
     //there has got to be a better way to do this 💔
-    let call = format!("https://api.sandbox.namecheap.com/xml.response?ApiUser={api_user}&ApiKey={api_key}&UserName={user_name}&ClientIp={client_ip}&Command=namecheap.domains.create&DomainName={domain}&Years=1&RegistrantFirstName=Hey&RegistrantLastName=Soteria&RegistrantAddress1=1815%20Central&RegistrantCity=Wichita&RegistrantStateProvince=Kansas&RegistrantPostalCode=67214&RegistrantCountry=US&RegistrantPhone=+3164487944&RegistrantEmailAddress=netadmin@heysoteria.com&TechFirstName=Hey&TechLastName=Soteria&TechAddress1=1815%20Central&TechCity=Wichita&TechStateProvince=Kansas&TechPostalCode=67214&TechCountry=US&TechPhone=+3164487944&TechEmailAddress=netadmin@heysoteria.com&AdminFirstName=Hey&AdminLastName=Soteria&AdminAddress1=1815%20Central&AdminCity=Wichita&AdminStateProvince=Kansas&AdminPostalCode=67214&AdminCountry=US&AdminPhone=+3164487944&AdminEmailAddress=netadmin@heysoteria.com&AuxBillingFirstName=Hey&AuxBillingLastName=Soteria&AuxBillingAddress1=1815%20Central&AuxBillingCity=Wichita&AuxBillingProvince=Kansas&AuxBillingPostalCode=67214&AuxBillingCountry=US&AuxBillingPhone=+3164487944&AuxBillingEmailAddress=netadmin@heysoteria.com");
+    let call = format!("https://api.sandbox.namecheap.com/xml.response?ApiUser={api_user}&ApiKey={api_key}&UserName={user_name}&ClientIp={client_ip}&Command=namecheap.domains.create&DomainName={domain}&Years=1&RegistrantFirstName=Hey&RegistrantLastName=Soteria&RegistrantAddress1=1815%20Central&RegistrantCity=Wichita&RegistrantStateProvince=Kansas&RegistrantPostalCode=67214&RegistrantCountry=US&RegistrantPhone=+1.3164487944&RegistrantEmailAddress=netadmin@heysoteria.com&TechFirstName=Hey&TechLastName=Soteria&TechAddress1=1815%20Central&TechCity=Wichita&TechStateProvince=Kansas&TechPostalCode=67214&TechCountry=US&TechPhone=+1.3164487944&TechEmailAddress=netadmin@heysoteria.com&AdminFirstName=Hey&AdminLastName=Soteria&AdminAddress1=1815%20Central&AdminCity=Wichita&AdminStateProvince=Kansas&AdminPostalCode=67214&AdminCountry=US&AdminPhone=+1.3164487944&AdminEmailAddress=netadmin@heysoteria.com&AuxBillingFirstName=Hey&AuxBillingLastName=Soteria&AuxBillingAddress1=1815%20Central&AuxBillingCity=Wichita&AuxBillingProvince=Kansas&AuxBillingPostalCode=67214&AuxBillingCountry=US&AuxBillingPhone=+1.3164487944&AuxBillingEmailAddress=netadmin@heysoteria.com");
 
     let resp = reqwest::get(&call)
         .await
@@ -61,9 +61,6 @@ async fn nc_create(
     ( StatusCode::OK, draw_index(&resp) )
 }
 
-//TODO: Need to be able to pass the domain we want to act on
-//to this function 
-//forget how to do this lol 
 async fn nc_get_hosts(
         Path((name, tld)): Path<(String, String)>,
 ) -> (StatusCode, Markup) {
