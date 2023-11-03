@@ -1,3 +1,4 @@
+//TODO: REFACTOR! I've created a monster
 use std::env;
 use std::net::{Ipv4Addr, Ipv6Addr};
 
@@ -35,6 +36,28 @@ async fn main() {
         .serve(site.into_make_service())
         .await
         .unwrap();
+}
+
+fn format_record(rec: DnsRecord) -> String {
+    let ret: String = match rec {
+        DnsRecord::A{ host, value } => {
+            format!("{host} - {value}")
+        },
+        DnsRecord::AAAA{ host, value } => {
+            format!("{host} - {value}")
+        }
+        DnsRecord::TXT{ host, value } => {
+            format!("{host} - {value}")
+        }
+        DnsRecord::CNAME{ host, value } => {
+            format!("{host} - {value}")
+        }
+        DnsRecord::MX{ host, priority, value} => {
+            format!("{host} - {priority} - {value}")
+        }
+
+    };
+    ret
 }
 
 async fn front_page() -> (StatusCode, Markup) {
@@ -105,7 +128,81 @@ async fn nc_get_hosts(
         .await
         .unwrap();
 
-    ( StatusCode::OK, draw_index(&resp) )
+    // let resp = env::var("DEBUG_RESPONSE").unwrap();
+
+    let mut reader = Reader::from_str(&resp);
+    let mut buf = Vec::new();
+    let mut records: Vec<DnsRecord> = Vec::new();
+    loop {
+        match reader.read_event_into(&mut buf) {
+            Err(_) => panic!("Event read error!"),  
+            Ok(Event::Eof) => break,
+            Ok(Event::Empty(f)) => {
+                match f.name().as_ref() {
+                    b"host" => {
+                        let mut name: Option<String> = None;
+                        let mut rtype: Option<String> = None;
+                        let mut value: Option<String> = None;
+                        let mut mxpri: Option<String> = None;
+
+                        for i in f.attributes() {
+                            let att = i.unwrap();
+                            match att.key.as_ref() {
+                                //hostname
+                                b"Name" => {
+                                    name = Some(att.unescape_value().unwrap().into_owned());
+                                }
+                                b"Type" => {
+                                    rtype = Some(att.unescape_value().unwrap().into_owned());
+                                },
+                                //record value
+                                b"Address" => {
+                                    value = Some(att.unescape_value().unwrap().into_owned());
+                                },
+                                b"MXPref" => {
+                                    mxpri = Some(att.unescape_value().unwrap().into_owned());
+                                },
+                                _ => (),
+                            }
+                        }
+
+                        let record: DnsRecord;
+                        match rtype.unwrap().as_str() {
+                            "TXT" => {
+                                record = DnsRecord::TXT { host: String::from(name.unwrap()), value: String::from(value.unwrap()) };
+                            },
+                            "A" => {
+                                record = DnsRecord::A { host: String::from(name.unwrap()), value: value.unwrap().parse().unwrap() };
+                            },
+                            "AAAA" => {
+                                record = DnsRecord::AAAA { host: String::from(name.unwrap()), value: value.unwrap().parse().unwrap() };
+                            },
+                            "MX" => {
+                                record = DnsRecord::MX { host: String::from(name.unwrap()), priority: mxpri.unwrap().parse().unwrap(), value: String::from(value.unwrap()) };
+                            },
+                            "CNAME" => {
+                                record = DnsRecord::CNAME { host: String::from(name.unwrap()), value: String::from(value.unwrap()) };
+
+                            },
+                            _ => { panic!("Can't parse record type"); }
+                        }
+                        records.push(record);
+                    },
+                    _ => (),
+                }
+            },
+            _ => (),
+        }
+    }
+
+    //ugh
+    let ret = html! {
+        @for i in records {
+            p { (format_record(i)) }
+        }
+    };
+        
+    ( StatusCode::OK, ret )
 }
 
 async fn query_dns() -> String {
@@ -123,7 +220,6 @@ async fn query_dns() -> String {
         .await
         .unwrap();
 
-    // let resp = env::var("DEBUG_RESPONSE").unwrap();
 
     let mut reader = Reader::from_str(&resp);
     let mut buf = Vec::new();
